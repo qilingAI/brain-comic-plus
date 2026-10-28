@@ -1,0 +1,4 @@
+interface:
+  display_name: "脑洞动画工厂 Plus"
+  short_description: "选取精彩片段生成国风动画，后期配字配乐，制作上文下画的竖屏短视频。"
+  default_prompt: "使用 $brain-comic-plus 为这个主题写短文案，选一个精彩片段演绎，制作上方文字、下方动画的竖屏视频。"

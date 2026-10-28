@@ -1,0 +1,16 @@
+{
+  "api_url": "https://toolsoul.daniu7.cn",
+  "model": "doubao-seedance-2.0-mini",
+  "generation_defaults": {
+    "duration": 10,
+    "resolution": "480p",
+    "ratio": "1:1",
+    "generate_audio": true
+  },
+  "builtin_videogen": {
+    "model": "seedance-2.0-fast",
+    "duration": 10,
+    "aspect_ratio": "1:1",
+    "resolution_preference": "720p"
+  }
+}
