@@ -1,4 +1,30 @@
 """Shared display rules for the vertical video composition."""
+import json
+import math
+from pathlib import Path
+import random
+
+
+def sample_typography(seed=None):
+    """Sample once per video; persist this result and reuse it on render retries."""
+    config = json.loads((Path(__file__).resolve().parents[1] / 'references/typography.json').read_text())
+    rng = random.Random(seed)
+    body_size = rng.randint(*config['body_size'])
+    minimum = max(config['highlight_size'][0], math.ceil(body_size * config['highlight_scale'][0]))
+    maximum = min(config['highlight_size'][1], math.floor(body_size * config['highlight_scale'][1]))
+    palette = rng.choice(config['highlight_palettes'])
+    return dict(
+        body_size=body_size, highlight_size=rng.randint(minimum, maximum),
+        body_gap=rng.randint(*config['body_gap']),
+        highlight_top_gap=rng.randint(*config['highlight_top_gap']),
+        highlight_bottom_gap=rng.randint(*config['highlight_bottom_gap']),
+        bottom_margin=rng.randint(*config['bottom_margin']),
+        body_color=rng.choice(config['body_colors']), highlight_palette=palette,
+        body_stroke_width=config['body_stroke_width'],
+        highlight_stroke_width=config['highlight_stroke_width'],
+        outer_dark_edge_width=config['outer_dark_edge_width'],
+        dark_edge_color=config['dark_edge_color'],
+        highlight_glyph_expansion=rng.randint(*config['highlight_glyph_expansion']))
 
 
 def display_line(text):

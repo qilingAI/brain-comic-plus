@@ -1,0 +1,21 @@
+{
+  "reference_canvas": [1080, 1920],
+  "body_size": [56, 64],
+  "highlight_scale": [1.2, 1.3],
+  "highlight_size": [68, 82],
+  "body_gap": [8, 14],
+  "highlight_top_gap": [12, 20],
+  "highlight_bottom_gap": [12, 20],
+  "bottom_margin": [32, 48],
+  "body_colors": ["#E8C75A", "#E2CAA0", "#B8D7D4"],
+  "highlight_palettes": [
+    {"name": "浅蓝字蓝描边", "fill": "#D4F4FF", "stroke": "#368CE0"},
+    {"name": "浅金字橙描边", "fill": "#FFF0C2", "stroke": "#D88D36"},
+    {"name": "浅粉字玫紫描边", "fill": "#FFE0F2", "stroke": "#C667A1"}
+  ],
+  "body_stroke_width": 4,
+  "highlight_stroke_width": 5,
+  "outer_dark_edge_width": 2,
+  "dark_edge_color": "#111820",
+  "highlight_glyph_expansion": [1, 2]
+}

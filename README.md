@@ -47,7 +47,7 @@ git clone https://github.com/qilingAI/brain-comic-plus.git ~/.codex/skills/brain
 视频已放进约定的「用户视频」目录，继续检查并合成竖屏成片。
 ```
 
-默认逐阶段调试；明确要求一次完成全流程时，才连续执行各阶段。
+正常创作默认一次完成三步，直到交付成片。只有明确要求“先做第一步”“只要提示词”或“逐步调试”时才停在指定阶段。选择手动生成时，在等待用户提供视频的位置保留进度，取得视频后继续后期。
 
 ## 三步流程
 
@@ -97,6 +97,10 @@ git clone https://github.com/qilingAI/brain-comic-plus.git ~/.codex/skills/brain
 - 视频按原比例铺满宽度，左右不留边；剩余高度给文字，不强制五五分。
 - 1:1 素材显示为 1080×1080，上方文字区为 1080×840。
 - 上方文字整段同时显示；每行只去掉末尾一个逗号或句号，保留问号、叹号和行内标点，原文稿不变。
+- 顶部文字层背景透明，叠在由本条动画放大、模糊、适度压暗形成的动态背景上。
+- 每条随机一套排版：正文56–64px、行间空隙8–14px；高亮为正文1.2–1.3倍（68–82px），上下空隙各12–20px；文字块距视频32–48px。片内保持一致，重渲染沿用同一参数。
+- 正文三选一：暖黄 `#E8C75A`、米金 `#E2CAA0`、浅青灰 `#B8D7D4`。
+- 高亮加大加粗，采用**整句填色＋另一色粗描边**，不是前后半句换色：浅蓝字／蓝描边、浅金字／橙描边、浅粉字／玫紫描边。具体色号和描边宽度见[排版配置](references/typography.json)。
 - 保留视频原声，BGM 按需混入；后期不再次调用视频模型。
 
 ## BGM 库与手动视频目录
@@ -160,7 +164,7 @@ python scripts/qiling_video.py run --storyboard /实际路径/分镜提示词.js
 python scripts/qiling_video.py sync --storyboard /实际路径/分镜提示词.json --id shot-01
 ```
 
-`run` 可能提交付费生成任务，只在确实需要生成时执行。无 Key 的新任务会返回宿主工具检查计划；这不是已经提交或已经生成成功。FFmpeg 合成由 Agent 按后期规则执行，`delivery_layout.py` 提供满宽布局和显示标点处理函数。
+`run` 可能提交付费生成任务，只在确实需要生成时执行。无 Key 的新任务会返回宿主工具检查计划；这不是已经提交或已经生成成功。FFmpeg 合成由 Agent 按后期规则执行，`delivery_layout.py` 提供满宽布局、显示标点处理及按配置抽取排版参数的函数。
 
 配置见 [qiling-video.json](references/qiling-video.json)：`generation_defaults` 用于接口与手动交接，`builtin_videogen` 用于宿主内置工具。画风见 [styles.json](references/styles.json)。
 
