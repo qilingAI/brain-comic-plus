@@ -22,9 +22,10 @@ class LayoutTests(unittest.TestCase):
         self.assertGreater(len({p['body_size'] for p in samples}), 1)
         self.assertEqual(sample_typography(29), sample_typography(29))
         for p in samples:
-            self.assertNotEqual(p['highlight_palette']['fill'], p['highlight_palette']['stroke'])
-            self.assertEqual(p['highlight_stroke_width'], 5)
-            self.assertEqual(p['outer_dark_edge_width'], 2)
+            self.assertEqual(p['highlight_palette']['stroke'], p['dark_edge_color'])
+            self.assertIn(p['highlight_palette']['fill'], ['#66DFFF', '#FFE17A', '#FF96BE'])
+            self.assertEqual(p['highlight_stroke_width'], 3)
+            self.assertEqual(p['outer_dark_edge_width'], 0)
 
     def test_square_video_fills_width_without_cropping(self):
         layout = vertical_layout(720, 720)
