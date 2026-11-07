@@ -124,7 +124,7 @@ def host_videogen_plan(storyboard, shot_id):
                        duration=payload["duration"], aspect_ratio=payload["ratio"]),
         resolution_preference=builtin["resolution_preference"],
         reference_adapter_required=len(payload["content"]) > 1,
-        message="检查实际可调用videogen及其参数；支持分辨率时尝试720p。"
+        message="检查实际可调用videogen及其参数；默认720p；无法核实输出档位时先向用户确认。"
                 "有参考输入时先确认工具支持再传入，不能丢弃参考。"
                 "异步提交后仅查询原任务；工具不可用时交付提示词走手动生成。"
                 "这只是路由计划，尚未调用或生成视频。")
@@ -138,7 +138,8 @@ def prepare(storyboard, shot_id):
     shot = matches[0]
     defaults = read(ROOT / "references/qiling-video.json")["generation_defaults"]
     options = {name: defaults[name] if shot.get(name) is None else shot[name]
-               for name in ("duration", "resolution", "ratio", "generate_audio")}
+               for name in ("resolution", "ratio", "generate_audio")}
+    options["duration"] = shot.get("duration")
     duration = options["duration"]
     if type(duration) is not int or not 4 <= duration <= 15:
         raise ValueError("单次视频长度须为4–15整数秒，长片请拆分")
@@ -268,7 +269,7 @@ def sync(state, path, client):
     return summary(state)
 
 
-def run(storyboard, shot_id, config, client, *, new_attempt=False, call_id=None, sync_only=False):
+def run(storyboard, shot_id, config, client, *, new_attempt=False, call_id=None, sync_only=False, allow_480p=False):
     path = job_path(storyboard, shot_id)
     with locked(path.with_suffix(".lock")):
         state = read(path) if path.exists() else None
@@ -288,6 +289,8 @@ def run(storyboard, shot_id, config, client, *, new_attempt=False, call_id=None,
                 raise ValueError("没有原任务可查询")
             return sync(state, path, client)
         payload = prepare(storyboard, shot_id)
+        if (not state or new_attempt) and payload['resolution'] == '480p' and not allow_480p:
+            raise ValueError('480p须经用户明确同意；确认后使用 --allow-480p')
         signature = hashlib.sha256(json.dumps(dict(**config, **payload), sort_keys=True, ensure_ascii=False).encode()).hexdigest()
         if state and new_attempt:
             if not (state["status"] in {"downloaded", "rejected"} or state.get("remote_status") in {"failed", "cancelled"}):
@@ -330,6 +333,7 @@ def main():
         command.add_argument("--id", required=True)
         if name == "run":
             command.add_argument("--new-attempt", action="store_true")
+            command.add_argument("--allow-480p", action="store_true")
         command.add_argument("--call-id", type=int)
     args = parser.parse_args()
     try:
@@ -358,7 +362,7 @@ def main():
                 else:
                     result = run(args.storyboard, args.id, config, client,
                                  new_attempt=getattr(args, "new_attempt", False), call_id=args.call_id,
-                                 sync_only=args.command == "sync")
+                                 sync_only=args.command == "sync", allow_480p=getattr(args, "allow_480p", False))
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0
     except KeyboardInterrupt:

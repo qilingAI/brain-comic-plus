@@ -9,13 +9,13 @@
 内置默认值来自qiling-video.json的builtin_videogen：
 
 - model：seedance-2.0-fast。
-- duration：10秒。
+- duration：按剧情和阅读负担选择10–15秒，并核实工具支持。
 - aspect_ratio：1:1。
-- resolution_preference：720p，仅是支持时尝试的偏好。
+- resolution_preference：720p，默认输出分辨率。
 
 完整视频提示词沿用当前选定版本，模型内容不加入后期拼接说明。根据真实工具schema传prompt、model、duration、aspect_ratio；接口字段ratio在此映射为aspect_ratio。不要把器灵模型名doubao-seedance-2.0-mini传给内置工具。
 
-只有工具明确支持分辨率字段时才按其实际字段名传720p；若工具只有用户示例中的prompt/model/duration/aspect_ratio/first_frame，不硬塞resolution或把720p文字写进画面提示词冒充已设置。记录该工具未开放分辨率选择，检查输出真实尺寸即可。用户明确指定参数优先；不擅自换到seedance-2.5或改时长、比例。
+只有工具明确支持分辨率字段时才按其实际字段名传720p；若工具只有用户示例中的prompt/model/duration/aspect_ratio/first_frame，不硬塞resolution或把720p文字写进画面提示词冒充已设置。无法通过文档核实实际分辨率时，付费提交前向用户确认。用户明确指定参数优先；不擅自换到seedance-2.5或改时长、比例。
 
 默认纯文本生成，不增加参考图阶段。已有用户参考时按工具实际支持的first_frame等字段适配；本地文件路径不当URL。不能因为另一通道只支持首帧就把用户多个参考悄悄丢掉，无法保留必要输入时明确说明。
 

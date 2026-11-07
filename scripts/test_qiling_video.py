@@ -82,28 +82,26 @@ class VideoTests(unittest.TestCase):
         self.assertTrue(payload["generate_audio"])
         self.assertNotIn("reference_images", payload)
 
-    def test_unspecified_duration_submits_ten_seconds(self):
+    def test_missing_or_null_duration_is_rejected(self):
+        for duration in (None,):
+            self.shot["duration"] = duration
+            self.save_book()
+            with self.assertRaises(ValueError):
+                self.run_clip()
         del self.shot["duration"]
         self.save_book()
-        self.run_clip()
-        self.assertEqual(self.http.call_args.args[2]["duration"], 10)
+        with self.assertRaises(ValueError):
+            self.run_clip()
 
     def test_missing_generation_parameters_use_shared_defaults(self):
-        for name in ("duration", "resolution", "ratio", "generate_audio"):
-            del self.shot[name]
+        self.shot["duration"] = 15
+        for name in ("resolution", "ratio", "generate_audio"):
+            self.shot[name] = None
         self.save_book()
         self.run_clip()
         payload = self.http.call_args.args[2]
         self.assertEqual({name: payload[name] for name in ("duration", "resolution", "ratio", "generate_audio")},
-                         dict(duration=10, resolution="480p", ratio="1:1", generate_audio=True))
-
-    def test_null_generation_parameters_use_shared_defaults(self):
-        self.shot.update(duration=None, resolution=None, ratio=None, generate_audio=None)
-        self.save_book()
-        self.run_clip()
-        payload = self.http.call_args.args[2]
-        self.assertEqual((payload["duration"], payload["resolution"], payload["ratio"], payload["generate_audio"]),
-                         (10, "480p", "1:1", True))
+                         dict(duration=15, resolution="720p", ratio="1:1", generate_audio=True))
 
     def test_explicit_supported_parameters_override_defaults(self):
         self.shot.update(duration=15, resolution="720p", ratio="16:9", generate_audio=False)
@@ -112,6 +110,16 @@ class VideoTests(unittest.TestCase):
         payload = self.http.call_args.args[2]
         self.assertEqual((payload["duration"], payload["resolution"], payload["ratio"], payload["generate_audio"]),
                          (15, "720p", "16:9", False))
+
+    def test_480p_requires_confirmation_for_new_requests(self):
+        self.shot["resolution"] = "480p"
+        self.save_book()
+        with self.assertRaisesRegex(ValueError, "用户明确同意"):
+            self.run_clip()
+        self.http.assert_not_called()
+        self.assertFalse(self.journal.exists())
+        self.run_clip(allow_480p=True)
+        self.assertEqual(self.http.call_args.args[2]["resolution"], "480p")
 
     def test_no_key_does_not_require_api_sdk(self):
         store = Mock()

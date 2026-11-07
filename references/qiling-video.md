@@ -6,7 +6,7 @@
 
 ## 无Key时先检查宿主能力
 
-没有API Key时不把器灵授权作为生成视频的前提，先按[builtin-video.md](builtin-video.md)查找宿主实际可调用的videogen；存在时由宿主执行，默认seedance-2.0-fast、10秒、1:1，可设置分辨率时尝试720p。不存在时保留提示词并走手动生成，不假称具备工具。
+没有API Key时不把器灵授权作为生成视频的前提，先按[builtin-video.md](builtin-video.md)查找宿主实际可调用的videogen；存在时由宿主执行，默认seedance-2.0-fast、1:1，时长按剧情选择，默认720p，无法核实档位时先向用户确认。不存在时保留提示词并走手动生成，不假称具备工具。
 
 脚本run在新任务无Key时返回host_videogen_check_required及候选参数，退出码为0；这是交给宿主检查并调用的路由计划，不是已提交或生成成功。脚本不能凭空调用宿主工具。已有视频任务时返回original_task_needs_credentials，先恢复原任务，不重复切换生成；显式authorize命令仅在用户选择授权时执行。
 
@@ -30,7 +30,7 @@ python scripts/qiling_video.py models
 
 `models` 只读当前模型目录与动态文档，核实启用状态、参考图支持、请求 schema、时长、画幅和分辨率。开发时的公开文档请求返回401，已有项目缓存列出4–15秒、480p/720p；**缓存是起点，实际调用前须授权后核对实时数据**。不要直接照搬其他平台、完整版或 Fast 的参数。脚本先按已知4–15秒等范围保守验证；接口或实时文档变更时修正后再调用，不通过换模型绕过。
 
-统一默认参数定义在qiling-video.json的generation_defaults：duration=10、resolution=480p、ratio=1:1、generate_audio=true。接口分镜与手动交接按此填写；内置通道读取builtin_videogen，不覆盖generation_defaults；执行脚本对缺失或null的字段使用同一默认值。用户明确指定其他受支持参数时才覆盖，不自动选15秒、720p或9:8。画面与对白、动作音效、环境声统一生成，有对白配字幕，一般无旁白；BGM可选且后期加入。参数和后期安排留在制作说明，不拼进模型提示词。后期仅用FFmpeg，不调用Seedance合成。
+统一默认参数定义在qiling-video.json的generation_defaults：resolution=720p、ratio=1:1、generate_audio=true；duration根据剧情在10–15秒内选择并明确填写。接口分镜与手动交接按此填写；内置通道读取builtin_videogen，不覆盖generation_defaults；执行脚本要求明确填写duration，其他缺失或null的字段使用默认值。用户明确指定的受支持参数优先。480p首次提交或重做须取得用户明确同意后加 --allow-480p，原任务查询不需要该选项。画面与对白、动作音效、环境声统一生成，角色对白贯穿全场并逐句配同步字幕，一般无旁白；BGM可选且后期加入。参数和后期安排留在制作说明，不拼进模型提示词。后期仅用FFmpeg，不调用Seedance合成。
 
 ## 提交、查询与恢复
 
